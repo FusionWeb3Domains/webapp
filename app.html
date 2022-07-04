@@ -24,7 +24,7 @@
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
 <script type="text/javascript" src="/lib/jQuery/PluginStack/Wow-js/wow.min.js?v=10"></script>
 <script type="text/javascript" src="/js/custom.js?v=202"></script>
-<script type="text/javascript" src="/networks.js?v=1"></script>
+<script type="text/javascript" src="/networks.js?v=2"></script>
 <link rel="icon" href="/favicon/favicon-32x32.png" />
 <link rel="shortcut icon" href="/favicon/favicon-32x32.png" />
 <title>Fusion Web3 Domains (.fsn) - Own Your Blockchain Domains</title>
@@ -454,10 +454,7 @@ div[data-notify="container"] {
 				<div class="menu">
 					<div class="menu-close"><i class="fal fa-times-circle"></i></div>
 					<ul class="nav">
-						<li class="nav-item active"><a data-id="#home" href="/">Home</a></li>
-						<li class="nav-item"><a data-id="#features" href="#">Features</a></li>
-						<li class="nav-item"><a data-id="#roadmap" href="#">Roadmap</a></li>
-						<li class="nav-item"><a data-id="#faqs" href="#">FAQ</a></li>
+						<li class="nav-item active"><a data-id="" href="/">Home</a></li>
 					</ul>
 				</div>
 			</div>
@@ -470,7 +467,7 @@ div[data-notify="container"] {
 </div>
 <div class="warp-banner text-center">
 	<div class="warp-search">
-		<div class="banner-nofix">
+		<div class="banner-nofix" style="z-index: 999; position: relative;">
 			<div class="container">
 				<div class="" style='margin-bottom: 30px;color:#FFF;'><a style='color: #FFF;' target='_blank' href=''></a></div>
 				<div class="menu-btn" style="margin-bottom: 20px;">
@@ -484,7 +481,7 @@ div[data-notify="container"] {
 						</span>
 						<input type="hidden" class="currentAddress" />
 					</div>
-				<div class="alert alert-danger text-center not-support" style="display:none; width:750px; margin:0 auto; margin-bottom: 20px;" role="alert">
+				<div class="alert alert-danger text-center not-support" style="display:none; margin:0 auto; margin-bottom: 20px;" role="alert">
 				  <i class="fas fa-2x fa-exclamation-triangle"></i>
 					<span>
 						Network is not currently supported. Please click button below.<br/>
@@ -495,7 +492,7 @@ div[data-notify="container"] {
 					
 				</div>
 				<div class="warp-form-search" style='display:none;'>
-					<div class='text-right' style='display:none;'>
+					<div class='text-right'>
 						<span class='emoji-picker'>
 							<span class=''>Emoji Picker 🖐</span>
 							<span class='emoji-load' style='display: none;'><emoji-picker></emoji-picker></span>
@@ -820,38 +817,44 @@ div[data-notify="container"] {
 
 	const changeNetwork = async (networkName) => {
 		if (!window.ethereum) {
+			notify('alert-danger', '<span class="text-danger">No Metamask (or other Web3 Provider) installed</span>');
 			return;
 		}
 		
 		const network = getObjects(networks, "chain", networkName)[0];
+		
 		try {
 		  await window.ethereum.request({
 			method: 'wallet_switchEthereumChain',
 			params: [{ chainId: web3.utils.toHex(network.chainId) }],
 		  });
 		} catch (e) {
-		  if (e.code === 4902) {
-			try {
-			  await window.ethereum.request({
-				method: 'wallet_addEthereumChain',
-				params: [
-				  {
-					chainId: web3.utils.toHex(network.chainId),
-					chainName: network.chainName,
-					nativeCurrency: {
-					  name: network.nativeCurrency.name,
-					  symbol: network.nativeCurrency.symbol,
-					  decimals: network.nativeCurrency.decimals
-					},
-					rpcUrls: network.rpcUrls,
-					blockExplorerUrls: network.blockExplorerUrls
-				  },
-				],
-			  });
-			} catch (addError) {
-			  //console.error(addError);
+			var code = e.data.originalError.code
+			if (code === undefined) {
+				code = e.code;
 			}
-		  }
+			if (code === 4902) {
+				try {
+				  await window.ethereum.request({
+					method: 'wallet_addEthereumChain',
+					params: [
+					  {
+					  	chainName: network.chainName,
+						chainId: web3.utils.toHex(network.chainId),
+						nativeCurrency: {
+						  symbol: network.nativeCurrency.symbol,
+						  decimals: network.nativeCurrency.decimals
+						},
+						rpcUrls: network.rpcUrls,
+						blockExplorerUrls: network.blockExplorerUrls
+					  },
+					],
+				  });
+				} catch (addError) {
+					notify('alert-danger', '<span class="text-danger">' + JSON.stringify(addError) + '</span>');
+					return;
+				}
+		   }
 		}
 	};
 	

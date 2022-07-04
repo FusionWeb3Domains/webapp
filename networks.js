@@ -7,7 +7,7 @@ const networks = [
 			"networkId": 32659,
 			"nativeCurrency":{"name":"FSN","symbol":"FSN","decimals":18},
 			"rpcUrls": ["https://mainnet.anyswap.exchange/"],
-			"blockExplorerUrls": ["https://www.fsnex.com/"],
+			"blockExplorerUrls": ["https://fsnscan.com/"],
 			"contactAddress": "0xa1019535e6b364523949eaf45f4b17521c1cb074",
 			"tld": ".fsn", 
 			"logo": "/images/cryptologo/fusion.svg",

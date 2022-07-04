@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta charset="UTF-8"> 
+<meta http-equiv="encoding" content="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/paginationjs@2.1.5/dist/pagination.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootbox@5.5.2/bootbox.all.min.js"></script>
+<script type="text/javascript" src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script type="text/javascript" src="/networks.js?v=1"></script>
+<script type="text/javascript">
+	$(function(){
+		var domain = decodeURIComponent(getUrlParameter('domain'));
+		var avatar = decodeURIComponent(getUrlParameter('avatar'));
+		var outfile = decodeURIComponent(getUrlParameter('outfile'));
+		
+		$('.domainhere').text(domain);
+		
+		if (avatar !== ''){
+			var newImg = new Image;
+			newImg.onload = function() {
+				$('.avatar').attr('src', this.src);
+				setTimeout(function(){
+					saveAvatar();
+				}, 2000);
+			}
+			newImg.src = avatar;
+			return;
+		}
+		
+		setTimeout(function(){
+			saveAvatar();
+		}, 2000);
+		
+		var saveAvatar = () => {
+		
+			html2canvas(document.querySelector(".preview")).then(canvas => {
+			
+				var base64 = canvas.toDataURL("image/png");
+				
+				var objnew = new Object();
+				objnew.domain = domain;
+				objnew.outfile = outfile;
+				objnew.base64 = base64;
+				objnew.host = '';
+			
+				$.ajax({
+					type: "POST",
+					url: "/api/nftdomains/saveavatar",
+					data: JSON.stringify(objnew),
+					dataType: 'json',
+					success: function (dt) {  						
+						if (dt != null) 
+						{
+							var result = dt.result;
+						}
+					}
+				});
+			});
+		}
+				
+	});
+</script>
+<style>
+html {
+    margin:    0 auto;
+	padding:0px;
+}
+
+head {padding:0px; margin: 0px;}
+body {padding:0px; margin: 0px;}
+.preview {
+	max-width: 700px;
+	width: 700px; 
+	height: 700px;
+	position: relative;
+	background: linear-gradient(45deg, #004abc, #002164);
+}
+.preview .avatar{
+	width: 100%;
+	max-width: 700px;
+	max-height: 700px;
+}
+
+.preview .domainhere
+{
+	position: absolute;
+    top: 60%;
+    color: #FFF;
+    font-size: 45px;
+	text-shadow: 2px 2px #696969;
+	word-wrap: break-word;
+	width: 700px; 
+	margin: 0 auto;
+	text-align: center;
+}
+</style>
+</head>
+<body>
+	<div class='preview'>
+		<img class='avatar' src='/NFTDomains/bg.png' />
+		<div class="domainhere"></div>
+	</div>
+</body>
+</html>
